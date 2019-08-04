@@ -17,6 +17,7 @@ type Client interface {
 	Incr(name string, tags map[string]string) error
 	Timing(name string, value time.Duration, tags map[string]string) error
 
+	Flush() error
 	Close() error
 }
 
@@ -103,7 +104,7 @@ func (c *client) Close() error {
 		return errors.New("client is already closed")
 	}
 
-	err := c.flush()
+	err := c.Flush()
 	if err != nil {
 		return err
 	}
@@ -123,7 +124,7 @@ func (c *client) Send(e event.Event) error {
 
 	c.buffer = append(c.buffer, e)
 	if c.shouldFlush() {
-		return c.flush()
+		return c.Flush()
 	}
 
 	return nil
@@ -137,7 +138,7 @@ func (c *client) shouldFlush() bool {
 
 // flush flushes the buffer to the provider
 // it assumes the caller already has a lock on the buffer
-func (c *client) flush() error {
+func (c *client) Flush() error {
 	err := c.Provider.Send(c.buffer)
 	if err != nil {
 		return err
