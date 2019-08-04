@@ -27,18 +27,29 @@ type client struct {
 	Provider providers.Provider
 
 	sync.Mutex
-	maxBufferSize int
-	buffer        []event.Event
-	closed        bool
+	bufferSize int
+	buffer     []event.Event
+	closed     bool
 }
 
-func New(provider providers.Provider) Client {
-	maxBufferSize := 50
+type ClientOpt func(c *client)
 
-	return &client{
-		Provider:      provider,
-		maxBufferSize: maxBufferSize,
+func WithBufferSize(size int) ClientOpt {
+	return func(c *client) {
+		c.bufferSize = size
 	}
+}
+
+func New(provider providers.Provider, opts ...ClientOpt) Client {
+	client := &client{
+		Provider: provider,
+	}
+
+	for _, opt := range opts {
+		opt(client)
+	}
+
+	return client
 }
 
 // Gauge measures the value of a metric at a particular time.
@@ -133,7 +144,7 @@ func (c *client) Send(e event.Event) error {
 // shouldFlush determines whether to flush the buffer to the provider
 // it assumes the caller already has a lock on the buffer
 func (c *client) shouldFlush() bool {
-	return len(c.buffer) == c.maxBufferSize
+	return len(c.buffer) == c.bufferSize
 }
 
 // flush flushes the buffer to the provider

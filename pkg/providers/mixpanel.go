@@ -14,6 +14,8 @@ import (
 
 var _ Provider = (*mixpanelProvider)(nil)
 
+const MixpanelBufferSize = 50
+
 type MixpanelOpts struct {
 	Token string
 }
