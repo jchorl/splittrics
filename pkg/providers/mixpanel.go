@@ -52,7 +52,7 @@ func (p *mixpanelProvider) Send(events []event.Event) error {
 		})
 	}
 
-	jsonEncoded, err := json.Marshal(events)
+	jsonEncoded, err := json.Marshal(mixpanelEvents)
 	if err != nil {
 		return errors.Wrap(err, "error sending events")
 	}

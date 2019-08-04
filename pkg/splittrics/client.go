@@ -37,7 +37,6 @@ func New(provider providers.Provider) Client {
 	return &client{
 		Provider:      provider,
 		maxBufferSize: maxBufferSize,
-		buffer:        make([]event.Event, maxBufferSize),
 	}
 }
 
